@@ -15,10 +15,13 @@ public:
     void setImage(QImage *a);
     int getLabel(vector<QPointF> &p);
 
+    bool choosed;
+
 protected:
     void paintEvent(QPaintEvent *e);
     void wheelEvent(QWheelEvent *e);
     void mouseMoveEvent(QMouseEvent *e);
+    void mousePressEvent(QMouseEvent *e);
 
 private:
     QImage *image;
@@ -36,6 +39,8 @@ private:
 
 signals:
     void changed();
+    void choice_change();
+    void change_image();
 };
 
 #endif // SHOWSCREEN_H

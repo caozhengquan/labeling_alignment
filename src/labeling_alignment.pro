@@ -16,11 +16,18 @@ SOURCES += main.cpp\
         mainwindow.cpp \
     labelingscreen.cpp \
     showscreen.cpp \
-    common.cpp
+    common.cpp \
+    helperscreen.cpp
 
 HEADERS  += mainwindow.h \
     labelingscreen.h \
     showscreen.h \
-    common.h
+    common.h \
+    helperscreen.h
 
 FORMS    += mainwindow.ui
+
+OPENCV = D:/opencv/opencv3.0.0/build
+CONFIG(debug,debug|release): LIBS += -L$$OPENCV/x64/vc12/lib/ -lopencv_world300d -lopencv_ts300d
+CONFIG(release,debug|release): LIBS += -L$$OPENCV/x64/vc12/lib/ -lopencv_world300 -lopencv_ts300
+INCLUDEPATH += $$OPENCV/include

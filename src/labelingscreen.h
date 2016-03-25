@@ -13,9 +13,8 @@ public:
     LabelingScreen(GlobalInfo *ginfo, QWidget *parent);
 
     void setImage(QImage *a);
-    void setLabel(vector<QPointF> p);
     void delete_label();
-    int getLabel(vector<QPointF> &p);
+    void update_linestate();
 
 protected:
     void paintEvent(QPaintEvent *e);
@@ -31,12 +30,12 @@ private:
     GlobalInfo *gf;
 
     enum Line_Sate {Empty, On, Over};
-    Line_Sate line_sate;
+    Line_Sate line_state;
 
     QPointF toGlobal(QPointF p);
-    void cal_fun(vector<QPointF> point_v,  vector<Func> &func_v);
     bool inRect(QRectF f, QRectF s);
     double cal_dis(QPointF a, QPointF b);
+    void my_crop(QImage input_image, QRectF rect, QImage &output_image);
 
 signals:
     void changed();
