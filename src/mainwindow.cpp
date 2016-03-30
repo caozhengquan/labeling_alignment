@@ -130,9 +130,13 @@ MainWindow::~MainWindow()
 
 void MainWindow::on_actionOpen_triggered()
 {
-    if(state == Normal)
+    if(state == Normal || state == Begin)
     {
-        //todo
+        QMessageBox::StandardButton reply;
+        reply = QMessageBox::question(this,"Warning",tr("Save result or not?"),
+                QMessageBox::Ok|QMessageBox::Cancel,QMessageBox::Ok);
+        if (reply == QMessageBox::Ok)
+            on_actionSave_triggered();
     }
 
     QString path;
@@ -210,7 +214,7 @@ void MainWindow::on_actionSave_triggered()
         QTextStream out(&file);
         for(int i = 0; i < image_list.size(); i++)
         {
-            out << image_list[i] << "\n";
+            out << image_list[i] << "\t" << labelrotate[i] << "\n";
             for(int j = 0; j < LineNum; j++)
             {
                 if(gf->label[i][j].size() > 0)
@@ -288,7 +292,14 @@ void MainWindow::on_slider_valueChanged(int value)
     {
         gf->image_no = value - 1;
         Mat a = imread(image_folderpath.toStdString() + image_list[gf->image_no].toStdString());
-        //cv::resize(a, a, cv::Size(a.cols*Ratio, a.rows));
+
+        labelrotate[gf->image_no] = (labelrotate[gf->image_no] + 360) % 360;
+        if(labelrotate[gf->image_no] == 90)
+            flip(a.t(), a, 1);
+        if(labelrotate[gf->image_no] == 270)
+            flip(a.t(), a, 0);
+        if(labelrotate[gf->image_no] == 180)
+            flip(a, a, -1);
 
         Mat b;
         warpAffine(a, b, affine_mats[gf->image_no], Size(SIZE_I*1.5, SIZE_I*1.5));
@@ -464,7 +475,8 @@ void MainWindow::init_label()
     for(int i = 0; i < image_list.size(); i++)
     {
         line = in.readLine();
-        if(line != image_list[i])
+        QStringList line_list = line.split("\t");
+        if(line_list[0] != image_list[i])
         {
             QMessageBox::warning(this, "warning", "images does not match when loading res.txt.");
             return;
