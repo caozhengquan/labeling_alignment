@@ -121,6 +121,11 @@ MainWindow::MainWindow(QWidget *parent) :
     state = Empty;
     helperLabel->setImage(helper_image[int(gf->aligntpye)]);
     helperLabel->update();
+
+    image = new QImage;
+    image_sobel = new QImage;
+    image_laplace = new QImage;
+    image_canny = new QImage;
 }
 
 MainWindow::~MainWindow()
@@ -151,6 +156,8 @@ void MainWindow::on_actionOpen_triggered()
     QFile file(list_filename);
     if (!file.open(QIODevice::ReadOnly | QIODevice::Text))
         return;
+
+    image_list.clear();
 
     QTextStream in(&file);
     vector<QPointF> point_v(BasePtNum);
@@ -234,7 +241,7 @@ void MainWindow::on_actionSave_triggered()
                 }
             }
         }
-        out.flush();
+        //out.flush();
         file.close();
     }
 }
@@ -289,7 +296,7 @@ void MainWindow::refresh_image()
 void MainWindow::on_slider_valueChanged(int value)
 {
     if(state == Normal || state == Begin)
-    {
+    {   
         gf->image_no = value - 1;
         Mat a = imread(image_folderpath.toStdString() + image_list[gf->image_no].toStdString());
 
@@ -303,7 +310,8 @@ void MainWindow::on_slider_valueChanged(int value)
 
         Mat b;
         warpAffine(a, b, affine_mats[gf->image_no], Size(SIZE_I*1.5, SIZE_I*1.5));
-        image = new QImage(mat2Qimg(b));
+        //image = new QImage(mat2Qimg(b));
+        image->swap(mat2Qimg(b));
         //labelscreen->setImage(image);
 
         showscreen[0]->setImage(image);
@@ -311,19 +319,22 @@ void MainWindow::on_slider_valueChanged(int value)
         Mat a_laplace, b_laplace;
         my_laplace(a, a_laplace);
         warpAffine(a_laplace, b_laplace, affine_mats[gf->image_no], Size(SIZE_I*1.5, SIZE_I*1.5));
-        image_laplace = new QImage(mat2Qimg(b_laplace));
+        //image_laplace = new QImage(mat2Qimg(b_laplace));
+        image_laplace->swap(mat2Qimg(b_laplace));
         showscreen[1]->setImage(image_laplace);
 
         Mat a_sobel, b_sobel;
         my_Sobel(a, a_sobel);
         warpAffine(a_sobel, b_sobel, affine_mats[gf->image_no], Size(SIZE_I*1.5, SIZE_I*1.5));
-        image_sobel = new QImage(mat2Qimg(b_sobel));
+        //image_sobel = new QImage(mat2Qimg(b_sobel));
+        image_sobel->swap(mat2Qimg(b_sobel));
         showscreen[2]->setImage(image_sobel);
 
         Mat a_canny, b_canny;
         my_canny(a, a_canny);
         warpAffine(a_canny, b_canny, affine_mats[gf->image_no], Size(SIZE_I*1.5, SIZE_I*1.5));
-        image_canny = new QImage(mat2Qimg(b_canny));
+        //image_canny = new QImage(mat2Qimg(b_canny));
+        image_canny->swap(mat2Qimg(b_canny));
         showscreen[3]->setImage(image_canny);
 
         refresh_image();
@@ -463,12 +474,25 @@ void MainWindow::update_lens()
 
 void MainWindow::init_label()
 {
+    for(int i = 0; i < gf->label.size(); i++)
+    {
+        for(int j = 0; j < gf->label[i].size(); j++)
+        {
+            gf->label[i][j].clear();
+            gf->func[i][j].clear();
+        }
+//        gf->label[i].clear();
+//        gf->func[i].clear();
+    }
     gf->label.resize(image_list.size(), vector<vector<QPointF> >(13, vector<QPointF>()));
     gf->func.resize(image_list.size(), vector<vector<Func> >(13, vector<Func>()));
 
     QFile file(folderpath + "res.txt");
     if (!file.open(QIODevice::ReadOnly | QIODevice::Text))
+    {
+        QMessageBox::warning(this, "warning", "failed to open res.txt");
         return;
+    }
 
     QTextStream in(&file);
     QString line;
