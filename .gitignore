@@ -1,3 +1,6 @@
 *.tar
 /build-*/
 /ibug_106/
+*.docx
+*.doc
+*.pdf

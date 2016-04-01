@@ -359,16 +359,16 @@ void MainWindow::on_slider_valueChanged(int value)
 
         sliderLabel->setText(QString::number(value) + "/" + QString::number(image_list.size()));
 
-        if(value == 1)
-        {
-            state = Begin;
-            combobox->setEnabled(true);
-        }
-        else
-        {
-            state = Normal;
-            combobox->setEnabled(false);
-        }
+//        if(value == 1)
+//        {
+//            state = Begin;
+//            combobox->setEnabled(true);
+//        }
+//        else
+//        {
+//            state = Normal;
+//            combobox->setEnabled(false);
+//        }
     }
 }
 
@@ -516,7 +516,8 @@ void MainWindow::init_label()
                     QPointF tmp_point;
                     tmp_point.setX(line_list[2*k+1].toDouble());
                     tmp_point.setY(line_list[2*k+2].toDouble());
-                    gf->label[i][j].push_back(tmp_point);
+                    if(k==0 ||  k > 0 && cal_dis(tmp_point, gf->label[i][j][k-1]) > 1)
+                        gf->label[i][j].push_back(tmp_point);
                 }
                 AffinePose(affine_mats[i],gf->label[i][j]);
                 cal_fun(gf->label[i][j], gf->func[i][j]);

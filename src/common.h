@@ -47,6 +47,7 @@ QImage mat2Qimg(Mat a);
 Mat Qimg2mat(QImage a);
 QRectF toQrect(cv::Rect_<float> rect);
 cv::Rect_<float> toCVrect(QRectF rect);
+double cal_dis(QPointF a, QPointF b);
 void cal_fun(vector<QPointF> point_v, vector<Func> &func_v);
 void CalcAffineMatByPose(const vector<QPointF> &source, const vector<QPointF> &target, Mat &affine_mat);
 void InvAffinePose(const Mat &affine_mat, vector<QPointF> &pose);

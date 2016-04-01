@@ -34,7 +34,6 @@ private:
 
     QPointF toGlobal(QPointF p);
     bool inRect(QRectF f, QRectF s);
-    double cal_dis(QPointF a, QPointF b);
     void my_crop(QImage input_image, QRectF rect, QImage &output_image);
 
 signals:

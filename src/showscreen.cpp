@@ -146,8 +146,3 @@ bool ShowScreen::inRect(QRectF f, QRectF s)
     return false;
 }
 
-double ShowScreen::cal_dis(QPointF a, QPointF b)
-{
-    return sqrt(pow(a.x() - b.x(),2) +pow(a.y() - b.y(),2));
-}
-

@@ -40,7 +40,7 @@ void LabelingScreen::paintEvent(QPaintEvent *e)
         for(int i = 0; i < gf->label[gf->image_no].size(); i++)
         {
             if(gf->label[gf->image_no][i].size() == 2)
-            painter.drawLine(gf->label[gf->image_no][i][0], gf->label[gf->image_no][i][1]);
+                painter.drawLine(gf->label[gf->image_no][i][0], gf->label[gf->image_no][i][1]);
 
             if(gf->label[gf->image_no][i].size() > 2)
             {
@@ -183,7 +183,7 @@ void LabelingScreen::mousePressEvent(QMouseEvent *e)
         {
             line_state = Over;
         }
-        else
+        else if(line_state != Over)
         {
             gf->label[gf->image_no][int(gf->aligntpye)].push_back(gf->label[gf->image_no][int(gf->aligntpye)][point_num - 1]);
         }
@@ -214,11 +214,6 @@ bool LabelingScreen::inRect(QRectF f, QRectF s)
     if(f.left() < s.left() && f.top() < s.top() && f.right() > s.right() && f.bottom() > s.bottom())
         return true;
     return false;
-}
-
-double LabelingScreen::cal_dis(QPointF a, QPointF b)
-{
-    return sqrt(pow(a.x() - b.x(),2) +pow(a.y() - b.y(),2));
 }
 
 

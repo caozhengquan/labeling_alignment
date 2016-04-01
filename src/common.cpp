@@ -49,6 +49,10 @@ cv::Rect_<float> toCVrect(QRectF rect)
 void cal_fun(vector<QPointF> point_v, vector<Func> &func_v)
 {
     int n = point_v.size();
+    func_v.clear();
+    func_v.resize(n-1);
+
+
     vector<double> Mx(n);
     vector<double> My(n);
     vector<double> A(n-2);
@@ -57,7 +61,6 @@ void cal_fun(vector<QPointF> point_v, vector<Func> &func_v)
     vector<double> Dx(n-2);
     vector<double> Dy(n-2);
     vector<double> h(n-1);
-    func_v.resize(n-1);
 
     for(int i = 0; i < n-1; i++)
     {
@@ -242,5 +245,10 @@ void my_canny(cv::Mat& srcImg, cv::Mat& dstImg)
     {
         cvtColor(dstImg, dstImg, CV_GRAY2BGR);
     }
+}
+
+double cal_dis(QPointF a, QPointF b)
+{
+    return sqrt(pow(a.x() - b.x(),2) +pow(a.y() - b.y(),2));
 }
 
