@@ -32,6 +32,7 @@ struct Func{
 enum AlignType {LeftEyeUp, LeftEyeDown, RightEyeUp, RightEyeDown, LeftEyebrow, RightEyebrow,
                 NoseOut, NoseIn, MouseOutUp, MouseOutDown, MouseInUp, MouseInDown, Face};
 
+enum Line_State {Empty, On, Over};
 
 struct GlobalInfo{
     QRectF lens;

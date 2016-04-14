@@ -50,8 +50,10 @@ MainWindow::MainWindow(QWidget *parent) :
     controlLayout->setRowStretch(2,1);
     controlLayout->setRowStretch(3,1);
     controlLayout->setRowStretch(4,1);
-    mainLayout->setMargin(30);
-    mainLayout->setSpacing(20);
+
+    labelLayout = new QGridLayout(this);
+    labelLayout->setColumnStretch(0,1);
+    labelLayout->setColumnStretch(1,1);
 
     gf = new GlobalInfo;
     gf->aligntpye = LeftEyeUp;
@@ -64,6 +66,7 @@ MainWindow::MainWindow(QWidget *parent) :
         showscreen[i] = new ShowScreen(gf, this);
     }
     labelscreen = new LabelingScreen(gf, this);
+    sliderEdit = new QLineEdit(this);
     slider = new QSlider(Qt::Horizontal,this);
     sliderLabel = new QLabel(this);
     combobox = new QComboBox(this);
@@ -95,9 +98,15 @@ MainWindow::MainWindow(QWidget *parent) :
     deleteButton->setFont(font2);
     deleteButton->setMinimumHeight(40);
 
-    sliderLabel->setText("N/A");
-    sliderLabel->setAlignment(Qt::AlignCenter);
+    sliderLabel->setText("/ A");
+    sliderLabel->setAlignment(Qt::AlignLeft);
     sliderLabel->setFont(font);
+    sliderEdit->setText("N");
+    sliderEdit->setAlignment(Qt::AlignRight);
+    sliderEdit->setFont(font);
+    sliderEdit->setEnabled(false);
+    sliderEdit->setValidator(new QIntValidator(1, 9999, this));
+
 
     mainLayout->addWidget(showscreen[0], 0, 0);
     mainLayout->addWidget(showscreen[1], 0, 1);
@@ -105,17 +114,20 @@ MainWindow::MainWindow(QWidget *parent) :
     mainLayout->addWidget(showscreen[3], 1, 1);
     mainLayout->addWidget(labelscreen, 0, 2, 2, 1);
     mainLayout->addWidget(slider, 2, 0, 1, 3);
-    mainLayout->addWidget(sliderLabel, 2, 3);
     controlLayout->addWidget(combobox, 0, 0);
     controlLayout->addWidget(helperLabel,1,0);
     controlLayout->addWidget(deleteButton, 2, 0);
+    labelLayout->addWidget(sliderEdit, 0, 0);
+    labelLayout->addWidget(sliderLabel,0,1);
     mainLayout->addLayout(controlLayout, 0, 3, 3, 1);
+    mainLayout->addLayout(labelLayout, 2, 3);
 
     widget->setLayout(mainLayout);
 
     connect(slider, SIGNAL(valueChanged(int)), this, SLOT(on_slider_valueChanged(int)));
     connect(combobox, SIGNAL(currentIndexChanged(int)), this, SLOT(on_combobox_valueChanged(int)));
     connect(deleteButton, SIGNAL(clicked()), this, SLOT(on_deleteButton_clicked()));
+    connect(sliderEdit, SIGNAL(returnPressed()), this, SLOT(on_silderEdit_valueChanged()));
 
 
     state = Empty;
@@ -158,6 +170,9 @@ void MainWindow::on_actionOpen_triggered()
         return;
 
     image_list.clear();
+    label21pt.clear();
+    labelfacerect.clear();
+    labelrotate.clear();
 
     QTextStream in(&file);
     vector<QPointF> point_v(BasePtNum);
@@ -192,6 +207,7 @@ void MainWindow::on_actionOpen_triggered()
     in.flush();
     file.close();
 
+    affine_mats.clear();
     affine_mats.resize(image_list.size());
     for(int i = 0; i < image_list.size(); i++)
     {
@@ -202,6 +218,8 @@ void MainWindow::on_actionOpen_triggered()
     gf->image_no = 0;
     init_label();
     showscreen[0]->choosed = true;
+
+    sliderEdit->setEnabled(true);
 
     slider->setMaximum(image_list.size());
     slider->setMinimum(1);
@@ -357,7 +375,8 @@ void MainWindow::on_slider_valueChanged(int value)
         gf->lens = gf->lens_bk;
         update_lens();
 
-        sliderLabel->setText(QString::number(value) + "/" + QString::number(image_list.size()));
+        sliderLabel->setText("/" + QString::number(image_list.size()));
+        sliderEdit->setText(QString::number(value));
 
 //        if(value == 1)
 //        {
@@ -520,7 +539,8 @@ void MainWindow::init_label()
                         gf->label[i][j].push_back(tmp_point);
                 }
                 AffinePose(affine_mats[i],gf->label[i][j]);
-                cal_fun(gf->label[i][j], gf->func[i][j]);
+                if(j != int(LeftEyebrow) && j != int(RightEyebrow))
+                    cal_fun(gf->label[i][j], gf->func[i][j]);
             }
         }
     }
@@ -579,7 +599,27 @@ void MainWindow::keyPressEvent(QKeyEvent *e)
                 slider->setValue(gf->image_no + 2);
             }
             break;
+        case Qt::Key_Escape:
+            if(gf->label[gf->image_no][int(gf->aligntpye)].size() > 0)
+            {
+                gf->label[gf->image_no][int(gf->aligntpye)].pop_back();
+                if(gf->label[gf->image_no][int(gf->aligntpye)].size() == 0)
+                    labelscreen->set_linestate(Line_State::Empty);
+                if(gf->aligntpye != LeftEyebrow && gf->aligntpye != RightEyebrow && gf->label[gf->image_no][int(gf->aligntpye)].size() > 2)
+                {
+                    cal_fun(gf->label[gf->image_no][int(gf->aligntpye)], gf->func[gf->image_no][int(gf->aligntpye)]);
+                    labelscreen->set_linestate(Line_State::On);
+                }
+                refresh();
+            }
         }
     }
+}
 
+void MainWindow::on_silderEdit_valueChanged()
+{
+    QString text = sliderEdit->text();
+    int value = text.toInt();
+    if(value > 0 && value <= image_list.size())
+        on_slider_valueChanged(value);
 }

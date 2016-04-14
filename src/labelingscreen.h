@@ -15,6 +15,7 @@ public:
     void setImage(QImage *a);
     void delete_label();
     void update_linestate();
+    void set_linestate(Line_State a);
 
 protected:
     void paintEvent(QPaintEvent *e);
@@ -29,8 +30,7 @@ private:
 
     GlobalInfo *gf;
 
-    enum Line_Sate {Empty, On, Over};
-    Line_Sate line_state;
+    Line_State line_state;
 
     QPointF toGlobal(QPointF p);
     bool inRect(QRectF f, QRectF s);

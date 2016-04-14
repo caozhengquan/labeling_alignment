@@ -25,6 +25,11 @@ void LabelingScreen::paintEvent(QPaintEvent *e)
     painter.drawImage(QRectF(QPointF(),size()), *image, gf->lens.toRect());
     painter.setWindow(gf->lens.toRect());
 
+    painter.setPen(QPen(Qt::black, scale/3));
+    QPointF glopos = toGlobal(mousepos);
+    painter.drawLine(QPointF(0, glopos.y()), QPointF(image->width(), glopos.y()));
+    painter.drawLine(QPointF(glopos.x(), 0), QPointF(glopos.x(), image->height()));
+
     painter.setPen(QPen(Qt::black, scale*2));
     painter.drawRect(gf->lens.toRect());
 
@@ -39,6 +44,9 @@ void LabelingScreen::paintEvent(QPaintEvent *e)
 
         for(int i = 0; i < gf->label[gf->image_no].size(); i++)
         {
+            if(i == int(LeftEyebrow) || i == int(RightEyebrow))
+                continue;
+
             if(gf->label[gf->image_no][i].size() == 2)
                 painter.drawLine(gf->label[gf->image_no][i][0], gf->label[gf->image_no][i][1]);
 
@@ -118,75 +126,98 @@ void LabelingScreen::mouseMoveEvent(QMouseEvent *e)
 
     if(line_state == On)
     {
-        int point_num = gf->label[gf->image_no][int(gf->aligntpye)].size();
-        qreal scale = gf->lens.width()/width()*4;
-        if(point_num > 3 && cal_dis(gf->label[gf->image_no][int(gf->aligntpye)][0], toGlobal(e->localPos())) < scale*2)
-            gf->label[gf->image_no][int(gf->aligntpye)][point_num - 1] = gf->label[gf->image_no][int(gf->aligntpye)][0];
+        if(gf->aligntpye == LeftEyebrow || gf->aligntpye == RightEyebrow)
+        {
+            //do nothing
+        }
         else
-            gf->label[gf->image_no][int(gf->aligntpye)][point_num - 1] = toGlobal(e->localPos());
-
-        if(gf->pair_type != -1 && gf->label[gf->image_no][gf->pair_type].size() > 0)
         {
-            if(point_num > 3 && cal_dis(gf->label[gf->image_no][gf->pair_type][0], toGlobal(e->localPos())) < scale*2)
-                gf->label[gf->image_no][int(gf->aligntpye)][point_num - 1] = gf->label[gf->image_no][gf->pair_type][0];
-            int size_tmp = gf->label[gf->image_no][gf->pair_type].size();
-            if(point_num > 3 && cal_dis(gf->label[gf->image_no][gf->pair_type][size_tmp - 1], toGlobal(e->localPos())) < scale*2)
-                gf->label[gf->image_no][int(gf->aligntpye)][point_num - 1] = gf->label[gf->image_no][gf->pair_type][size_tmp - 1];
+            int point_num = gf->label[gf->image_no][int(gf->aligntpye)].size();
+            qreal scale = gf->lens.width()/width()*4;
+            if(point_num > 3 && cal_dis(gf->label[gf->image_no][int(gf->aligntpye)][0], toGlobal(e->localPos())) < scale*2)
+                gf->label[gf->image_no][int(gf->aligntpye)][point_num - 1] = gf->label[gf->image_no][int(gf->aligntpye)][0];
+            else
+                gf->label[gf->image_no][int(gf->aligntpye)][point_num - 1] = toGlobal(e->localPos());
+
+            if(gf->pair_type != -1 && gf->label[gf->image_no][gf->pair_type].size() > 0)
+            {
+                if(point_num > 3 && cal_dis(gf->label[gf->image_no][gf->pair_type][0], toGlobal(e->localPos())) < scale*2)
+                    gf->label[gf->image_no][int(gf->aligntpye)][point_num - 1] = gf->label[gf->image_no][gf->pair_type][0];
+                int size_tmp = gf->label[gf->image_no][gf->pair_type].size();
+                if(point_num > 3 && cal_dis(gf->label[gf->image_no][gf->pair_type][size_tmp - 1], toGlobal(e->localPos())) < scale*2)
+                    gf->label[gf->image_no][int(gf->aligntpye)][point_num - 1] = gf->label[gf->image_no][gf->pair_type][size_tmp - 1];
+            }
+
+            if (point_num > 2)
+            {
+                cal_fun(gf->label[gf->image_no][int(gf->aligntpye)], gf->func[gf->image_no][int(gf->aligntpye)]);
+            }
         }
 
-        if (point_num > 2)
-        {
-            cal_fun(gf->label[gf->image_no][int(gf->aligntpye)], gf->func[gf->image_no][int(gf->aligntpye)]);
-        }
-
-        emit changed();
     }
+
+    emit changed();
 }
 
 void LabelingScreen::mousePressEvent(QMouseEvent *e)
 {
     if(e->button() == Qt::LeftButton)
     {
-        qreal scale = gf->lens.width()/width()*4;
-        if(line_state == Over)
-            return;
-        if(line_state == Empty)
+        if(gf->aligntpye == LeftEyebrow || gf->aligntpye == RightEyebrow)
         {
+            if(line_state == Empty)
+            {
+                gf->label[gf->image_no][int(gf->aligntpye)].push_back(toGlobal(e->localPos()));
+                line_state = Over;
+            }
             gf->label[gf->image_no][int(gf->aligntpye)].push_back(toGlobal(e->localPos()));
-            line_state = On;
+        }
+        else
+        {
+            qreal scale = gf->lens.width()/width()*4;
+            if(line_state == Over)
+                return;
+            if(line_state == Empty)
+            {
+                gf->label[gf->image_no][int(gf->aligntpye)].push_back(toGlobal(e->localPos()));
+                line_state = On;
+                if(gf->pair_type != -1 && gf->label[gf->image_no][gf->pair_type].size() > 0)
+                {
+                    if(cal_dis(gf->label[gf->image_no][gf->pair_type][0], toGlobal(e->localPos())) < scale*2)
+                        gf->label[gf->image_no][int(gf->aligntpye)][0] = gf->label[gf->image_no][gf->pair_type][0];
+                    int size_tmp = gf->label[gf->image_no][gf->pair_type].size();
+                    if(cal_dis(gf->label[gf->image_no][gf->pair_type][size_tmp - 1], toGlobal(e->localPos())) < scale*2)
+                        gf->label[gf->image_no][int(gf->aligntpye)][0] = gf->label[gf->image_no][gf->pair_type][size_tmp - 1];
+                }
+            }
+            int point_num = gf->label[gf->image_no][int(gf->aligntpye)].size();
+            if(point_num > 1)
+            {
+                if( cal_dis(gf->label[gf->image_no][int(gf->aligntpye)][point_num - 2], toGlobal(e->localPos())) <  scale/2)
+                        return;
+            }
+
             if(gf->pair_type != -1 && gf->label[gf->image_no][gf->pair_type].size() > 0)
             {
-                if(cal_dis(gf->label[gf->image_no][gf->pair_type][0], toGlobal(e->localPos())) < scale*2)
-                    gf->label[gf->image_no][int(gf->aligntpye)][0] = gf->label[gf->image_no][gf->pair_type][0];
+                if(point_num > 3 && cal_dis(gf->label[gf->image_no][gf->pair_type][0], toGlobal(e->localPos())) < scale*2)
+                    line_state = Over;
                 int size_tmp = gf->label[gf->image_no][gf->pair_type].size();
-                if(cal_dis(gf->label[gf->image_no][gf->pair_type][size_tmp - 1], toGlobal(e->localPos())) < scale*2)
-                    gf->label[gf->image_no][int(gf->aligntpye)][0] = gf->label[gf->image_no][gf->pair_type][size_tmp - 1];
+                if(point_num > 3 && cal_dis(gf->label[gf->image_no][gf->pair_type][size_tmp - 1], toGlobal(e->localPos())) < scale*2)
+                    line_state = Over;
+            }
+
+            if(point_num > 3 && cal_dis(gf->label[gf->image_no][int(gf->aligntpye)][0], toGlobal(e->localPos())) < scale*2)
+            {
+                line_state = Over;
+            }
+            else if(line_state != Over)
+            {
+                if(point_num > 2)
+                    cal_fun(gf->label[gf->image_no][int(gf->aligntpye)], gf->func[gf->image_no][int(gf->aligntpye)]);
+                gf->label[gf->image_no][int(gf->aligntpye)].push_back(gf->label[gf->image_no][int(gf->aligntpye)][point_num - 1]);
             }
         }
-        int point_num = gf->label[gf->image_no][int(gf->aligntpye)].size();
-        if(point_num > 1)
-        {
-            if( cal_dis(gf->label[gf->image_no][int(gf->aligntpye)][point_num - 2], toGlobal(e->localPos())) <  scale/2)
-                    return;
-        }
 
-        if(gf->pair_type != -1 && gf->label[gf->image_no][gf->pair_type].size() > 0)
-        {
-            if(point_num > 3 && cal_dis(gf->label[gf->image_no][gf->pair_type][0], toGlobal(e->localPos())) < scale*2)
-                line_state = Over;
-            int size_tmp = gf->label[gf->image_no][gf->pair_type].size();
-            if(point_num > 3 && cal_dis(gf->label[gf->image_no][gf->pair_type][size_tmp - 1], toGlobal(e->localPos())) < scale*2)
-                line_state = Over;
-        }
-
-        if(point_num > 3 && cal_dis(gf->label[gf->image_no][int(gf->aligntpye)][0], toGlobal(e->localPos())) < scale*2)
-        {
-            line_state = Over;
-        }
-        else if(line_state != Over)
-        {
-            gf->label[gf->image_no][int(gf->aligntpye)].push_back(gf->label[gf->image_no][int(gf->aligntpye)][point_num - 1]);
-        }
     }
     else
     {
@@ -234,5 +265,10 @@ void LabelingScreen::update_linestate()
         line_state = Over;
     else
         line_state = Empty;
+}
+
+void LabelingScreen::set_linestate(Line_State a)
+{
+    line_state = a;
 }
 

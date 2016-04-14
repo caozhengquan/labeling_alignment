@@ -15,6 +15,7 @@
 #include <QComboBox>
 #include <QTextCodec>
 #include <QPushButton>
+#include <QLineEdit>
 
 using namespace std;
 
@@ -37,6 +38,7 @@ private slots:
     void on_slider_valueChanged(int);
     void on_combobox_valueChanged(int);
     void on_deleteButton_clicked();
+    void on_silderEdit_valueChanged();
 
     void refresh();
     void refresh_choice();
@@ -51,6 +53,7 @@ private:
 
     QGridLayout *mainLayout;
     QGridLayout *controlLayout;
+    QGridLayout *labelLayout;
     LabelingScreen *labelscreen;
     vector<ShowScreen *> showscreen;
     QPushButton *deleteButton;
@@ -58,6 +61,7 @@ private:
     QSlider *slider;
     QComboBox *combobox;
     QLabel *sliderLabel;
+    QLineEdit *sliderEdit;
     HelperScreen *helperLabel;
 
     enum State {Empty, Normal, Begin};
