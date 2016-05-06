@@ -170,7 +170,8 @@ void LabelingScreen::mousePressEvent(QMouseEvent *e)
                 gf->label[gf->image_no][int(gf->aligntpye)].push_back(toGlobal(e->localPos()));
                 line_state = Over;
             }
-            gf->label[gf->image_no][int(gf->aligntpye)].push_back(toGlobal(e->localPos()));
+            else
+                gf->label[gf->image_no][int(gf->aligntpye)].push_back(toGlobal(e->localPos()));
         }
         else
         {

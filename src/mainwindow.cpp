@@ -149,10 +149,10 @@ void MainWindow::on_actionOpen_triggered()
 {
     if(state == Normal || state == Begin)
     {
-        QMessageBox::StandardButton reply;
-        reply = QMessageBox::question(this,"Warning",tr("Save result or not?"),
-                QMessageBox::Ok|QMessageBox::Cancel,QMessageBox::Ok);
-        if (reply == QMessageBox::Ok)
+//        QMessageBox::StandardButton reply;
+//        reply = QMessageBox::question(this,"Warning",tr("Save result or not?"),
+//                QMessageBox::Ok|QMessageBox::Cancel,QMessageBox::Ok);
+//        if (reply == QMessageBox::Ok)
             on_actionSave_triggered();
     }
 
@@ -224,6 +224,7 @@ void MainWindow::on_actionOpen_triggered()
     slider->setMaximum(image_list.size());
     slider->setMinimum(1);
     slider->setSingleStep(1);
+    slider->setValue(2);
     slider->setValue(1);
 
 }
@@ -517,6 +518,10 @@ void MainWindow::init_label()
     QString line;
     for(int i = 0; i < image_list.size(); i++)
     {
+        if(i == 43)
+        {
+            int a = 0;
+        }
         line = in.readLine();
         QStringList line_list = line.split("\t");
         if(line_list[0] != image_list[i])
@@ -561,10 +566,10 @@ void MainWindow::closeEvent(QCloseEvent *e)
 {
     if(state == Normal || state == Begin)
     {
-        QMessageBox::StandardButton reply;
-        reply = QMessageBox::question(this,"Warning",tr("Save result or not?"),
-                QMessageBox::Ok|QMessageBox::Cancel,QMessageBox::Ok);
-        if (reply == QMessageBox::Ok)
+//        QMessageBox::StandardButton reply;
+//        reply = QMessageBox::question(this,"Warning",tr("Save result or not?"),
+//                QMessageBox::Ok|QMessageBox::Cancel,QMessageBox::Ok);
+//        if (reply == QMessageBox::Ok)
             on_actionSave_triggered();
     }
 }

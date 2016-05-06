@@ -48,6 +48,12 @@ cv::Rect_<float> toCVrect(QRectF rect)
 
 void cal_fun(vector<QPointF> point_v, vector<Func> &func_v)
 {
+    if(point_v.size() <= 2)
+    {
+        func_v.clear();
+        return;
+    }
+
     int n = point_v.size();
     func_v.clear();
     func_v.resize(n-1);
